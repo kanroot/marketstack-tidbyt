@@ -168,6 +168,28 @@ def get_schema():
             value = "#FFD10D",
         )
     ]
+    days = [
+        schema.Option(
+            display = "15",
+            value = "15",
+        ),    
+        schema.Option(
+            display = "30",
+            value = "30",
+        ),
+        schema.Option(
+            display = "45",
+            value = "45",
+        ),
+        schema.Option(
+            display = "60",
+            value = "60",
+        ),
+        schema.Option(
+            display = "100",
+            value = "100",
+        )
+    ]
     return schema.Schema(
         version = "1",
         fields = [
@@ -181,7 +203,15 @@ def get_schema():
                 id = "company_name",
                 name = "Company Name",
                 desc = "The company name to display",
-                icon = "store",
+                icon = "sackDollar",
+            ),
+            schema.Dropdown(
+            id = "select_period",
+            name = "Time lapse",
+            desc = "Period of time to show",
+            icon = "calendarDays",
+            default = days[1].value,
+            options = days,
             ),
             schema.Dropdown(
             id = "color_profit",
