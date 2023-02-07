@@ -26,8 +26,10 @@ MARKETSTACK_PRICE_URL = "http://api.marketstack.com/v1/eod?access_key="
 def main(config):
     api_token = config.get("api_token")
     company_name = config.get("company_name")
+    select_period = config.get("select_period")
     missing_parameter = check_inputs(api_token, company_name)
     color_profit = get_preferences(config)
+
     print(missing_parameter)
     if missing_parameter:
         return error_view(missing_parameter)
@@ -36,7 +38,7 @@ def main(config):
     if is_error == True:
         return error_view("Servicio no disponible")
     else:
-        return get_value_last_month(data_raw, color_profit )
+        return get_value_last_month(data_raw, color_profit, select_period)
      
 
 def check_inputs(api_token, company_name):
@@ -70,7 +72,7 @@ def error_view(message):
         ),
     )
 
-def get_value_last_month(request, colors):
+def get_value_last_month(request, colors, select_period):
     list_data=[]
     i = 0
     for entry in request["data"]:
@@ -90,46 +92,21 @@ def get_value_last_month(request, colors):
         data_reconvert.append(value)
     min_yield = min(data_reconvert)
     max_yield = max(data_reconvert)
+
+    thirty_days = []
+    k = 0
+    for i in range(int(select_period), 0, -1):
+        object = (i, data_reconvert[k])
+        thirty_days.append(object)
+        k+=1
+
     return render.Root(
         child=render.Column(
             children=[
                 render.Row(
                     children=[
                         render.Plot(
-                            data = [
-                                (0, data_reconvert[30]),
-                                (1, data_reconvert[29]),
-                                (2, data_reconvert[28]),
-                                (3, data_reconvert[27]),
-                                (4, data_reconvert[26]),
-                                (5, data_reconvert[25]),
-                                (6, data_reconvert[24]),
-                                (7, data_reconvert[23]),
-                                (8, data_reconvert[22]),
-                                (9, data_reconvert[21]),
-                                (10, data_reconvert[20]),
-                                (11, data_reconvert[19]),
-                                (12, data_reconvert[18]),
-                                (13, data_reconvert[17]),
-                                (14, data_reconvert[16]),
-                                (15, data_reconvert[15]),
-                                (16, data_reconvert[14]),
-                                (17, data_reconvert[13]),
-                                (18, data_reconvert[12]),
-                                (19, data_reconvert[11]),
-                                (20, data_reconvert[10]),
-                                (21, data_reconvert[9]),
-                                (22, data_reconvert[8]),
-                                (23, data_reconvert[7]),
-                                (24, data_reconvert[6]),
-                                (25, data_reconvert[5]),
-                                (26, data_reconvert[4]),
-                                (27, data_reconvert[3]),
-                                (28, data_reconvert[2]),
-                                (29, data_reconvert[1]),
-                                (30, data_reconvert[0]),
-                                (31, data_reconvert[0]),
-                            ],
+                            data = thirty_days,
                             width = 64,
                             height = 32,
                             color = colors[0],
