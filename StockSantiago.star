@@ -80,16 +80,17 @@ def get_value_last_month(request, colors, select_period):
         list_data.append(entry["close"])
     
     total = 0
-    for a in range(30):
+    for a in range(int(select_period)):
         total+=list_data[a]
 
-    average = total / 30
-    data_last_30_days = list_data[0:31]
+    data_last_30_days = list_data[0:int(select_period)]
+    min_period = data_last_30_days[int(select_period) - 1]
 
     data_reconvert = []
     for entry in data_last_30_days:
-        value=(entry - average)
+        value=(entry - min_period)
         data_reconvert.append(value)
+    
     min_yield = min(data_reconvert)
     max_yield = max(data_reconvert)
 
@@ -200,7 +201,7 @@ def get_schema():
             ),
             schema.Dropdown(
             id = "color_looses",
-            name = "Loss's color",
+            name = "Loss color",
             desc = "The color of the loss graph",
             icon = "brush",
             default = options[2].value,
