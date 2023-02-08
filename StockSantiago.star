@@ -38,8 +38,8 @@ def main(config):
     if is_error == True:
         return error_view("Servicio no disponible")
     else:
-        return get_value_last_month(data_raw, color_profit, select_period)
-     
+        return get_data_select_period(data_raw, color_profit, select_period)
+    
 
 def check_inputs(api_token, company_name):
     missing_parameter = None
@@ -72,7 +72,7 @@ def error_view(message):
         ),
     )
 
-def get_value_last_month(request, colors, select_period):
+def get_data_select_period(request, colors, select_period):
     list_data=[]
     i = 0
     for entry in request["data"]:
@@ -83,31 +83,32 @@ def get_value_last_month(request, colors, select_period):
     for a in range(int(select_period)):
         total+=list_data[a]
 
-    data_last_30_days = list_data[0:int(select_period)]
-    min_period = data_last_30_days[int(select_period) - 1]
+    data_filter = list_data[0:int(select_period)]
+    min_period = data_filter[int(select_period) - 1]
 
     data_reconvert = []
-    for entry in data_last_30_days:
+    for entry in data_filter:
         value=(entry - min_period)
         data_reconvert.append(value)
     
     min_yield = min(data_reconvert)
     max_yield = max(data_reconvert)
 
-    thirty_days = []
+    select_period_data = []
     k = 0
     for i in range(int(select_period), 0, -1):
         object = (i, data_reconvert[k])
-        thirty_days.append(object)
+        select_period_data.append(object)
         k+=1
 
+    
     return render.Root(
         child=render.Column(
             children=[
                 render.Row(
                     children=[
                         render.Plot(
-                            data = thirty_days,
+                            data = select_period_data,
                             width = 64,
                             height = 32,
                             color = colors[0],
