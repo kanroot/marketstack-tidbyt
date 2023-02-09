@@ -26,7 +26,7 @@ def main(config):
     select_period = config.get("select_period")
     missing_parameter = check_inputs(api_token, company_name)
     color_profit = get_preferences(config)
-
+    print(color_profit)
     print(missing_parameter)
     if missing_parameter:
         return error_view(missing_parameter)
@@ -125,28 +125,27 @@ def get_data_select_period(request, colors, select_period):
 
 def get_schema():
     options = [
-        schema.Option(
-            display="Green",
-            value="#0f0",
-        ),
-        schema.Option(
-            display="Blue",
-            value="#00FFFF",
-        ),
-        schema.Option(
-            display="Red",
-            value="#f00",
-        ),
-        schema.Option(
-            display="Pink",
-            value="#FF94FF",
-        ),
-        schema.Option(
-            display="Mustard",
-            value="#FFD10D",
-        ),
+    schema.Option(display = "White", value = "#ffffff"),
+    schema.Option(display = "Silver", value = "#c0c0c0"),
+    schema.Option(display = "Gray", value = "#808080"),
+    schema.Option(display = "Red", value = "#ff0000"),
+    schema.Option(display = "Maroon", value = "#800000"),
+    schema.Option(display = "Yellow", value = "#ffff00"),
+    schema.Option(display = "Olive", value = "#808000"),
+    schema.Option(display = "Lime", value = "#00ff00"),
+    schema.Option(display = "Green", value = "#008000"),
+    schema.Option(display = "Aqua", value = "#00ffff"),
+    schema.Option(display = "Teal", value = "#008080"),
+    schema.Option(display = "Blue", value = "#0000ff"),
+    schema.Option(display = "Navy", value = "#000080"),
+    schema.Option(display = "Fuchsia", value = "#ff00ff"),
+    schema.Option(display = "Purple", value = "#800080"),
     ]
     days = [
+        schema.Option(
+            display="7",
+            value="7",
+        ),
         schema.Option(
             display="15",
             value="15",
@@ -196,7 +195,7 @@ def get_schema():
                 name="Profit's Color",
                 desc="The color of graph to be displayed profits.",
                 icon="brush",
-                default=options[0].value,
+                default=options[8].value,
                 options=options,
             ),
             schema.Dropdown(
@@ -204,7 +203,7 @@ def get_schema():
                 name="Loss color",
                 desc="The color of the loss graph",
                 icon="brush",
-                default=options[2].value,
+                default=options[3].value,
                 options=options,
             ),
         ],
@@ -213,11 +212,11 @@ def get_schema():
 
 def get_preferences(config):
     colors = []
-    color_regex = r"#[0-9A-F]{3}"
+    color_regex = r"#[0-9A-F]{6}"
     chart_color_profit = re.findall(color_regex, config.get("color_profit") or "")
     chart_color_loss = re.findall(color_regex, config.get("color_looses") or "")
-    chart_color_profit = chart_color_profit[0] if chart_color_profit else "#0f0"
-    chart_color_loss = chart_color_loss[0] if chart_color_loss else "#f00"
+    chart_color_profit = chart_color_profit[0] if chart_color_profit else "#008000"
+    chart_color_loss = chart_color_loss[0] if chart_color_loss else "#ff0000"
     colors.append(chart_color_profit)
     colors.append(chart_color_loss)
     return colors
