@@ -34,7 +34,7 @@ def main(config):
     if is_error == True:
         return error_view("Servicio no disponible")
     else:
-        return get_data_select_period(data_raw, color_profit, select_period)
+        return set_data_plot(data_raw, color_profit, select_period)
 
 
 def check_inputs(api_token, company_name):
@@ -71,7 +71,7 @@ def error_view(message):
     )
 
 
-def get_data_select_period(request, colors, select_period):
+def get_period_select(request, select_period):
     list_data = []
     i = 0
     for entry in request["data"]:
@@ -90,6 +90,10 @@ def get_data_select_period(request, colors, select_period):
         value = entry - min_period
         data_reconvert.append(value)
 
+    return data_reconvert
+
+def set_data_plot(request, colors, select_period):
+    data_reconvert = get_period_select(request, select_period)
     min_yield = min(data_reconvert)
     max_yield = max(data_reconvert)
 
@@ -101,24 +105,32 @@ def get_data_select_period(request, colors, select_period):
         k += 1
 
     return render.Root(
-        child=render.Column(
-            children=[
-                render.Row(
+        
+                render.Column(
                     children=[
+                        render.Row(
+     expanded=True,
+     main_align="space_between",
+     cross_align="end",
+     children=[
+          render.Box(width=10, height=8, color="#a00"),
+          render.Box(width=14, height=6, color="#0a0"),
+          render.Box(width=16, height=4, color="#00a"),
+     ],
+),
                         render.Plot(
                             data=select_period_data,
                             width=64,
-                            height=32,
+                            height=24,
                             color=colors[0],
-                            chart_type="scatter",
+                            chart_type="line",
                             color_inverted=colors[1],
                             y_lim=(min_yield, max_yield),
                             fill=True,
-                        )
+                        ),
+                        
                     ],
                 ),
-            ],
-        )
     )
 
 
