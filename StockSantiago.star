@@ -22,20 +22,24 @@ MARKETSTACK_PRICE_URL = "http://api.marketstack.com/v1/eod?access_key="
 
 
 def main(config):
+    
     api_token = config.get("api_token")
     company_name = config.get("company_name")
     select_period = config.get("select_period")
     missing_parameter = check_inputs(api_token, company_name)
     color_profit = get_preferences(config)
-
     if missing_parameter:
         return error_view(missing_parameter)
-    data_raw = make_marketstack_request(api_token, company_name)
-    is_error = is_response_error(data_raw)
-    if is_error == True:
-        return error_view("Servicio no disponible")
+    data_raw = cache.get("marketstack_rate")
+    if data_raw != None:
+        data_raw = json.decode(data_raw)
     else:
-        return set_data_plot(data_raw, color_profit, select_period)
+        data_raw = make_marketstack_request(api_token, company_name)
+        is_error = is_response_error(data_raw)
+        cache.set("marketstack_rate", json.encode(data_raw), ttl_seconds=86400)
+        if is_error == True:
+            return error_view("Servicio no disponible")
+    return get_data_select_period(data_raw, color_profit, select_period)
 
 
 def check_inputs(api_token, company_name):
@@ -72,7 +76,7 @@ def error_view(message):
     )
 
 
-def get_period_select(request, select_period):
+def get_data_select_period(request, colors, select_period):
     list_data = []
     i = 0
     for entry in request["data"]:
@@ -91,11 +95,6 @@ def get_period_select(request, select_period):
         value = entry - min_period
         data_reconvert.append(value)
 
-    return data_reconvert
-
-
-def set_data_plot(request, colors, select_period):
-    data_reconvert = get_period_select(request, select_period)
     min_yield = min(data_reconvert)
     max_yield = max(data_reconvert)
 
@@ -136,27 +135,28 @@ def set_data_plot(request, colors, select_period):
 
 def get_schema():
     options = [
-        schema.Option(display="White", value="#ffffff"),
-        schema.Option(display="Silver", value="#c0c0c0"),
-        schema.Option(display="Gray", value="#808080"),
-        schema.Option(display="Red", value="#ff0000"),
-        schema.Option(display="Maroon", value="#800000"),
-        schema.Option(display="Yellow", value="#ffff00"),
-        schema.Option(display="Olive", value="#808000"),
-        schema.Option(display="Lime", value="#00ff00"),
-        schema.Option(display="Green", value="#008000"),
-        schema.Option(display="Aqua", value="#00ffff"),
-        schema.Option(display="Teal", value="#008080"),
-        schema.Option(display="Blue", value="#0000ff"),
-        schema.Option(display="Navy", value="#000080"),
-        schema.Option(display="Fuchsia", value="#ff00ff"),
-        schema.Option(display="Purple", value="#800080"),
+        schema.Option(
+            display="Green",
+            value="#0f0",
+        ),
+        schema.Option(
+            display="Blue",
+            value="#00FFFF",
+        ),
+        schema.Option(
+            display="Red",
+            value="#f00",
+        ),
+        schema.Option(
+            display="Pink",
+            value="#FF94FF",
+        ),
+        schema.Option(
+            display="Mustard",
+            value="#FFD10D",
+        ),
     ]
     days = [
-        schema.Option(
-            display="7",
-            value="7",
-        ),
         schema.Option(
             display="15",
             value="15",
@@ -193,6 +193,13 @@ def get_schema():
                 desc="The company name to display",
                 icon="sackDollar",
             ),
+            schema.Text(
+                id="entry_stock",
+                name="Entry stock",
+                desc="A Expermiental feature, this feature enable type price of entry",
+                icon="gear",
+                default="Hello",
+            ),
             schema.Dropdown(
                 id="select_period",
                 name="Time lapse",
@@ -206,7 +213,7 @@ def get_schema():
                 name="Profit's Color",
                 desc="The color of graph to be displayed profits.",
                 icon="brush",
-                default=options[8].value,
+                default=options[0].value,
                 options=options,
             ),
             schema.Dropdown(
@@ -214,7 +221,7 @@ def get_schema():
                 name="Loss color",
                 desc="The color of the loss graph",
                 icon="brush",
-                default=options[3].value,
+                default=options[2].value,
                 options=options,
             ),
         ],
@@ -223,11 +230,11 @@ def get_schema():
 
 def get_preferences(config):
     colors = []
-    color_regex = r"#[0-9A-F]{6}"
+    color_regex = r"#[0-9A-F]{3}"
     chart_color_profit = re.findall(color_regex, config.get("color_profit") or "")
     chart_color_loss = re.findall(color_regex, config.get("color_looses") or "")
-    chart_color_profit = chart_color_profit[0] if chart_color_profit else "#008000"
-    chart_color_loss = chart_color_loss[0] if chart_color_loss else "#ff0000"
+    chart_color_profit = chart_color_profit[0] if chart_color_profit else "#0f0"
+    chart_color_loss = chart_color_loss[0] if chart_color_loss else "#f00"
     colors.append(chart_color_profit)
     colors.append(chart_color_loss)
     return colors
@@ -236,8 +243,6 @@ def get_preferences(config):
 def make_marketstack_request(api_token, company):
     url = MARKETSTACK_PRICE_URL + api_token + "&symbols=" + company
     response = http.get(url)
-    print(response.status_code)
-
     if response.status_code == 404:
         return ERROR_404
     elif response.status_code == 429:
@@ -248,6 +253,7 @@ def make_marketstack_request(api_token, company):
         return ERROR_422
     elif response.status_code != 200:
         return ERROR_UNKNOWN
+    
     return response.json()
 
 
