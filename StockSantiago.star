@@ -20,6 +20,7 @@ marketstack_data = """
 MARKETSTACK_ICON_IMAGE = base64.decode(marketstack_data)
 MARKETSTACK_PRICE_URL = "http://api.marketstack.com/v1/eod?access_key="
 
+
 def main(config):
     api_token = config.get("api_token")
     company_name = config.get("company_name")
@@ -92,6 +93,7 @@ def get_period_select(request, select_period):
 
     return data_reconvert
 
+
 def set_data_plot(request, colors, select_period):
     data_reconvert = get_period_select(request, select_period)
     min_yield = min(data_reconvert)
@@ -105,52 +107,50 @@ def set_data_plot(request, colors, select_period):
         k += 1
 
     return render.Root(
-        
-                render.Column(
+        render.Column(
+            children=[
+                render.Row(
+                    expanded=True,
+                    main_align="space_between",
+                    cross_align="end",
                     children=[
-                        render.Row(
-     expanded=True,
-     main_align="space_between",
-     cross_align="end",
-     children=[
-          render.Box(width=10, height=8, color="#a00"),
-          render.Box(width=14, height=6, color="#0a0"),
-          render.Box(width=16, height=4, color="#00a"),
-     ],
-),
-                        render.Plot(
-                            data=select_period_data,
-                            width=64,
-                            height=24,
-                            color=colors[0],
-                            chart_type="line",
-                            color_inverted=colors[1],
-                            y_lim=(min_yield, max_yield),
-                            fill=True,
-                        ),
-                        
+                        render.Box(width=10, height=8, color="#a00"),
+                        render.Box(width=14, height=6, color="#0a0"),
+                        render.Box(width=16, height=4, color="#00a"),
                     ],
                 ),
+                render.Plot(
+                    data=select_period_data,
+                    width=64,
+                    height=24,
+                    color=colors[0],
+                    chart_type="line",
+                    color_inverted=colors[1],
+                    y_lim=(min_yield, max_yield),
+                    fill=True,
+                ),
+            ],
+        ),
     )
 
 
 def get_schema():
     options = [
-    schema.Option(display = "White", value = "#ffffff"),
-    schema.Option(display = "Silver", value = "#c0c0c0"),
-    schema.Option(display = "Gray", value = "#808080"),
-    schema.Option(display = "Red", value = "#ff0000"),
-    schema.Option(display = "Maroon", value = "#800000"),
-    schema.Option(display = "Yellow", value = "#ffff00"),
-    schema.Option(display = "Olive", value = "#808000"),
-    schema.Option(display = "Lime", value = "#00ff00"),
-    schema.Option(display = "Green", value = "#008000"),
-    schema.Option(display = "Aqua", value = "#00ffff"),
-    schema.Option(display = "Teal", value = "#008080"),
-    schema.Option(display = "Blue", value = "#0000ff"),
-    schema.Option(display = "Navy", value = "#000080"),
-    schema.Option(display = "Fuchsia", value = "#ff00ff"),
-    schema.Option(display = "Purple", value = "#800080"),
+        schema.Option(display="White", value="#ffffff"),
+        schema.Option(display="Silver", value="#c0c0c0"),
+        schema.Option(display="Gray", value="#808080"),
+        schema.Option(display="Red", value="#ff0000"),
+        schema.Option(display="Maroon", value="#800000"),
+        schema.Option(display="Yellow", value="#ffff00"),
+        schema.Option(display="Olive", value="#808000"),
+        schema.Option(display="Lime", value="#00ff00"),
+        schema.Option(display="Green", value="#008000"),
+        schema.Option(display="Aqua", value="#00ffff"),
+        schema.Option(display="Teal", value="#008080"),
+        schema.Option(display="Blue", value="#0000ff"),
+        schema.Option(display="Navy", value="#000080"),
+        schema.Option(display="Fuchsia", value="#ff00ff"),
+        schema.Option(display="Purple", value="#800080"),
     ]
     days = [
         schema.Option(
