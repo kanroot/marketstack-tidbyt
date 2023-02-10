@@ -26,8 +26,7 @@ def main(config):
     select_period = config.get("select_period")
     missing_parameter = check_inputs(api_token, company_name)
     color_profit = get_preferences(config)
-    print(color_profit)
-    print(missing_parameter)
+
     if missing_parameter:
         return error_view(missing_parameter)
     data_raw = make_marketstack_request(api_token, company_name)
