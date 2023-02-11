@@ -39,7 +39,7 @@ def main(config):
         cache.set("marketstack_rate", json.encode(data_raw), ttl_seconds=86400)
         if is_error == True:
             return error_view("Servicio no disponible")
-    return get_data_select_period(data_raw, color_profit, select_period)
+    return get_data_select_period(data_raw, color_profit, select_period, company_name)
 
 
 def check_inputs(api_token, company_name):
@@ -76,7 +76,7 @@ def error_view(message):
     )
 
 
-def get_data_select_period(request, colors, select_period):
+def get_data_select_period(request, colors, select_period, company_name):
     list_data = []
     i = 0
     for entry in request["data"]:
@@ -97,6 +97,7 @@ def get_data_select_period(request, colors, select_period):
 
     min_yield = min(data_reconvert)
     max_yield = max(data_reconvert)
+    last_price = list_data[0]
 
     select_period_data = []
     k = 0
@@ -113,15 +114,20 @@ def get_data_select_period(request, colors, select_period):
                     main_align="space_between",
                     cross_align="end",
                     children=[
-                        render.Box(width=10, height=8, color="#a00"),
-                        render.Box(width=14, height=6, color="#0a0"),
-                        render.Box(width=16, height=4, color="#00a"),
+                        render.Column(
+                            cross_align = "space_around",
+                            children=[
+                                render.Text(font = "CG-pixel-3x5-mono", content = company_name),
+                                render.Text(font = "CG-pixel-3x5-mono", content = "$" + str(last_price) ),
+                             ]
+                             ),
+                       
                     ],
                 ),
                 render.Plot(
                     data=select_period_data,
                     width=64,
-                    height=24,
+                    height=22,
                     color=colors[0],
                     chart_type="line",
                     color_inverted=colors[1],
@@ -135,26 +141,21 @@ def get_data_select_period(request, colors, select_period):
 
 def get_schema():
     options = [
-        schema.Option(
-            display="Green",
-            value="#0f0",
-        ),
-        schema.Option(
-            display="Blue",
-            value="#00FFFF",
-        ),
-        schema.Option(
-            display="Red",
-            value="#f00",
-        ),
-        schema.Option(
-            display="Pink",
-            value="#FF94FF",
-        ),
-        schema.Option(
-            display="Mustard",
-            value="#FFD10D",
-        ),
+        schema.Option(display="White", value="#ffffff"),
+        schema.Option(display="Silver", value="#c0c0c0"),
+        schema.Option(display="Gray", value="#808080"),
+        schema.Option(display="Red", value="#ff0000"),
+        schema.Option(display="Maroon", value="#800000"),
+        schema.Option(display="Yellow", value="#ffff00"),
+        schema.Option(display="Olive", value="#808000"),
+        schema.Option(display="Lime", value="#00ff00"),
+        schema.Option(display="Green", value="#008000"),
+        schema.Option(display="Aqua", value="#00ffff"),
+        schema.Option(display="Teal", value="#008080"),
+        schema.Option(display="Blue", value="#0000ff"),
+        schema.Option(display="Navy", value="#000080"),
+        schema.Option(display="Fuchsia", value="#ff00ff"),
+        schema.Option(display="Purple", value="#800080"),
     ]
     days = [
         schema.Option(
@@ -213,7 +214,7 @@ def get_schema():
                 name="Profit's Color",
                 desc="The color of graph to be displayed profits.",
                 icon="brush",
-                default=options[0].value,
+                default=options[8].value,
                 options=options,
             ),
             schema.Dropdown(
@@ -221,7 +222,7 @@ def get_schema():
                 name="Loss color",
                 desc="The color of the loss graph",
                 icon="brush",
-                default=options[2].value,
+                default=options[3].value,
                 options=options,
             ),
         ],
@@ -230,15 +231,14 @@ def get_schema():
 
 def get_preferences(config):
     colors = []
-    color_regex = r"#[0-9A-F]{3}"
+    color_regex = r"#[a-zA-Z0-9]{6}"
     chart_color_profit = re.findall(color_regex, config.get("color_profit") or "")
     chart_color_loss = re.findall(color_regex, config.get("color_looses") or "")
-    chart_color_profit = chart_color_profit[0] if chart_color_profit else "#0f0"
-    chart_color_loss = chart_color_loss[0] if chart_color_loss else "#f00"
+    chart_color_profit = chart_color_profit[0] if chart_color_profit else "#008000"
+    chart_color_loss = chart_color_loss[0] if chart_color_loss else "#ff0000"
     colors.append(chart_color_profit)
     colors.append(chart_color_loss)
     return colors
-
 
 def make_marketstack_request(api_token, company):
     url = MARKETSTACK_PRICE_URL + api_token + "&symbols=" + company
