@@ -63,6 +63,14 @@ def get_percentage(last_price, previus_last_price):
     v = (v[0:-2] + "." + v[-2:])
     return v
 
+
+def get_color_percentage_change(price):
+    if (price > 0):
+        return "#00ff00"
+    else:
+        return "#ff0000"
+
+
 def error_view(message):
     return render.Root(
         render.Row(
