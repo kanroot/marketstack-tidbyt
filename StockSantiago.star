@@ -28,6 +28,7 @@ def main(config):
     select_period = config.get("select_period")
     missing_parameter = check_inputs(api_token, company_name)
     color_profit = get_preferences(config)
+    query_timer =  config.get("time_query")
     if missing_parameter:
         return error_view(missing_parameter)
     data_raw = cache.get("marketstack_rate")
@@ -36,7 +37,7 @@ def main(config):
     else:
         data_raw = make_marketstack_request(api_token, company_name)
         is_error = is_response_error(data_raw)
-        cache.set("marketstack_rate", json.encode(data_raw), ttl_seconds=86400)
+        cache.set("marketstack_rate", json.encode(data_raw), ttl_seconds = int(query_timer))
         if is_error == True:
             return error_view(data_raw)
     return get_data_select_period(data_raw, color_profit, select_period, company_name)
@@ -220,6 +221,32 @@ def get_schema():
             value="100",
         ),
     ]
+    query = [
+        schema.Option(
+            display="1 minute",
+            value="60",
+        ),
+        schema.Option(
+            display="15 minutes",
+            value="900",
+        ),
+        schema.Option(
+            display="30 minutes",
+            value="1800",
+        ),
+        schema.Option(
+            display="1 hour",
+            value="3600",
+        ),
+        schema.Option(
+            display="2 hours",
+            value="3600",
+        ),
+        schema.Option(
+            display="1 day",
+            value="86400",
+        ),
+    ]
     return schema.Schema(
         version="1",
         fields=[
@@ -258,6 +285,14 @@ def get_schema():
                 icon="brush",
                 default=options[3].value,
                 options=options,
+            ),
+            schema.Dropdown(
+                id="time_query",
+                name="Time to refresh ",
+                desc="Time to make a new query",
+                icon="clock",
+                default=query[5].value,
+                options=query,
             ),
         ],
     )
