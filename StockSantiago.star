@@ -80,7 +80,7 @@ def error_view(message):
     )
 
 
-def get_percentage(last_price, previus_last_price):
+def get_percentage_with_two_decimals(last_price, previus_last_price):
     minus = last_price - previus_last_price
     difference_percentage = (minus / previus_last_price) * 100
     v = str(int(math.round(difference_percentage * 100)))
@@ -126,7 +126,7 @@ def get_data_select_period(request, colors, select_period, company_name):
         select_period_data.append(object)
         k += 1
 
-    price_change = get_percentage(last_price, previus_last_price)
+    price_change = get_percentage_with_two_decimals(last_price, previus_last_price)
     color_price_change = get_color_percentage_change(price_change)
 
     return render.Root(
