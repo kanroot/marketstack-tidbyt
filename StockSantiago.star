@@ -150,7 +150,7 @@ def get_data_select_period(request, colors, select_period, company_name):
                             ],
                         ),
                         render.Row(
-                            expanded=True,
+                            expanded=False,
                             main_align="space_between",
                             cross_align="end",
                             children=[
