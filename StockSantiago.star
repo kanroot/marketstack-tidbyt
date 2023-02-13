@@ -1,7 +1,6 @@
 load("cache.star", "cache")
 load("encoding/base64.star", "base64")
 load("encoding/json.star", "json")
-load("hash.star", "hash")
 load("http.star", "http")
 load("re.star", "re")
 load("render.star", "render")
